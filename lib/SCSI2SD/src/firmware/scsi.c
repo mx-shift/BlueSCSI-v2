@@ -329,6 +329,11 @@ static void process_Command()
 	}
 
 	scsiDev.cdbLen = CmdGroupBytes[scsiDev.cdb[0]];
+
+	if ((scsiDev.cdb[0] == 0xC0 || scsiDev.cdb[0] == 0xC2) && scsiDev.target->cfg->quirks == S2S_CFG_QUIRKS_OMTI) {
+		scsiDev.cdbLen = 6;
+	}
+
 	if (parityError &&
 		(scsiDev.boardCfg.flags & S2S_CFG_ENABLE_PARITY))
 	{
