@@ -1166,11 +1166,20 @@ static void process_MessageOut()
 
 void scsiPoll(void)
 {
-	if (resetUntil != 0 && resetUntil > s2s_getTime_ms())
-	{
-		return;
+	if (resetUntil != 0) {
+		// A reset started and needs to continue until RST is deasserted. Keep
+		// extending the reset duration until that happens.
+		if (SCSI_IN(RST)) {
+			resetUntil = s2s_getTime_ms() + 2;
+		}
+
+		// Once RST is deasserted, wait a few ms longer.
+		if (resetUntil > s2s_getTime_ms())
+		{
+			return;
+		}
+		resetUntil = 0;
 	}
-	resetUntil = 0;
 
 	if (unlikely(scsiDev.resetFlag))
 	{
